@@ -3,6 +3,7 @@
 This lambda is a generic application to enable the CVS DevOps team to be notified through email or sms.
 
 You will require a GovNotify API Key to be able to use this lambda.
+
 Any GovNotify templates to be used with will require a variable `s3_link` to allow attachments to be linked. 
 
 
