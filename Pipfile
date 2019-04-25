@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+boto3_type_annotations_with_docs = "*"
+behave = "*"
+
+[packages]
+aws_xray_sdk = "*"
+boto3 = "*"
+boto3_type_annotations = "*"
+notifications_python_client = "*"
+
+[requires]
+python_version = "3.7"
