@@ -45,7 +45,7 @@ The values `template_vars` `attachment` `attachment_name` are optional.
 Run the following:
 ```bash
 pipenv install --dev
-./notify.py --event example_event.json
+pipenv run notify --event example_event.json
 ```
 
 ## Tests

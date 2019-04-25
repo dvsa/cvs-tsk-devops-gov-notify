@@ -15,3 +15,6 @@ notifications_python_client = "*"
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+notify = "python notify.py"
