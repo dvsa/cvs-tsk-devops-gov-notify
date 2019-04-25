@@ -20,15 +20,7 @@ SENDERS: Dict[str, Union[GovNotify, Teams]] = {'email': GovNotify(CONFIG), 'sms'
 def handler(event, context) -> Dict:
     """
 
-    :param event: This should be:
-    {
-      'message_type': '<email, sms, teams>',
-      'to': 'example@example.com, +4407123456789, @johndoe',
-      'subject': 'Example Alert', [Optional]
-      'body': 'This is an Example Alert',
-      'attachment': '<base64 encoded file'>, [Optional] (Can not be greater than 2MB for email or it can be uploaded to s3 and linked).
-      'attachment_name': 'File Name of the above attachment', [Optional]
-    }
+    :param event: See README.md for examples
     :param context: AWS Lambda Context
     :return: Simple Response
     """
