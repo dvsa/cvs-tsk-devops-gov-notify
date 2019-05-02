@@ -5,6 +5,7 @@ import mimetypes
 import os
 from abc import ABC, abstractmethod
 from configparser import NoSectionError, ConfigParser
+from pathlib import Path
 from typing import Dict, Optional, Any, Union
 from urllib import parse
 
@@ -17,16 +18,21 @@ boto3.set_stream_logger('', logging.INFO)
 
 
 class Sender(ABC):
-    def __init__(self, config) -> None:
-        self.config = ConfigParser().read(config)
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, config: Path = None, dry_run: bool = False) -> None:
+        self.dry_run = dry_run
+        self.config_path = config
+        self.config = ConfigParser()
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.message_type: str = None
         self.to: str = None
         self.subject: str = None
-        self.body: str = None
+        self.body: Union[str, Dict] = None
         self.attachment: Union[str, bytes] = None
         self.attachment_name: str = None
         self.s3_url: str = None
+        if self.config_path.exists() and self.config_path.is_file():
+            self.logger.info(f"Reading config file {self.config_path}")
+            self.config.read(self.config_path)
 
     def get_config_value(self, env_var: str, section: str, key: str) -> str:
         """
@@ -43,12 +49,25 @@ class Sender(ABC):
         config_value: Optional[str] = os.getenv(env_var)
         if not config_value:
             try:
+                if not self.config_path.is_file() or not self.config_path.exists():
+                    raise FileNotFoundError
                 config_value = self.config.get(section, key)
-                self.logger.info(msg=f"Retrieved config value [{section}]\n{key}\n")
+                self.logger.info(msg=f"Retrieved config value [{section}].{key}")
             except NoSectionError as e:
-                self.logger.exception(f"Environment variable '{env_var}' not set and"
-                                      f" [{section}]\n{key}\n in config.ini is not set", exec_info=e)
+                self.logger.exception(
+                    f"Environment variable '{env_var}' not set and [{section}].{key} in {self.config_path} is not set",
+                    exec_info=e)
                 raise
+            except FileNotFoundError as e:
+                if self.config_path is None:
+                    self.logger.exception(f"Tried to retrieve [{section}].{key} when config file path is not set "
+                                          f"and '{env_var}' environment variable is also not set", exc_info=e)
+                    raise
+                else:
+                    self.logger.exception(f"Tried to retrieve [{section}].{key} and {self.config_path} does not exist "
+                                          f"or is not a file and '{env_var}' environment variable is also not set",
+                                          exc_info=e)
+                    raise
         return config_value
 
     @xray_recorder.capture('put')
@@ -69,7 +88,7 @@ class Sender(ABC):
             obj.put(Body=self.attachment, Expires=datetime.datetime.now() + datetime.timedelta(weeks=1),
                     ContentType=content_type, ContentEncoding=encoding or '', ACL="bucket-owner-full-control")
         except ClientError as e:
-            self.logger.exception("Error uploading attachment to S3", exc_info=e)
+            self.logger.exception(f"Error uploading {self.attachment_name} to S3", exc_info=e)
             raise
         key = parse.quote_plus(obj.key)
         bucket_region = 'eu-west-1'
@@ -86,7 +105,6 @@ class Sender(ABC):
 
         :return: As desired.
         """
-        self.logger.info(repr(event))
         self.message_type = event.get('message_type')
         self.to = event.get('to')
         self.subject = event.get('subject')
@@ -95,7 +113,7 @@ class Sender(ABC):
         self.attachment_name = event.get('attachment_name')
 
     @abstractmethod
-    def send(self) -> Optional[str, Dict]:
+    def send(self) -> Any:
         """
         This should 'send' the message and return a status message
 
