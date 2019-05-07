@@ -134,6 +134,5 @@ venv.bak/
 
 # Repo Specific
 /config.ini
-/build.sh
 /*.zip
 /.idea/
