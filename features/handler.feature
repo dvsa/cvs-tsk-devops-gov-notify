@@ -21,5 +21,4 @@ Feature: Handler
 
   Scenario: invalid message type sent
     Given an invalid message type was sent
-    Then it should log a ValueError Exception
-    And it should raise the Exception
+    Then it should raise a ValueError Exception

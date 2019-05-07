@@ -5,14 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 boto3_type_annotations_with_docs = "*"
-behave = "*"
-pyhamcrest = "*"
+behave = "~=1.2"
+pyhamcrest = "~=1.9"
+moto = "*"
+responses = "*"
 
 [packages]
-aws_xray_sdk = "*"
-boto3 = "*"
+aws_xray_sdk = "~=2.4"
+boto3 = "~=1.9"
 boto3_type_annotations = "*"
-notifications_python_client = "*"
+notifications_python_client = "~=5.3"
 
 [requires]
 python_version = "3.7"

@@ -23,22 +23,25 @@ class Handler:
         self.message = None
         self.data = None
         self.response = None
-        try:
-            if self.message_type in SENDERS:
-                self.sender = SENDERS[event.get('message_type')](CONFIG)
-            else:
-                raise ValueError
-        except ValueError as e:
-            logger.exception(f'{type(self.message_type)} was not in {repr(SENDERS.keys())}, failing.', exc_info=e)
-            raise
-        self.message = self.sender.set_message(self.event)
-        if self.message:
-            logger.info(f'Message set. {type(self.sender).__name__} returned: {self.message}')
+        self.sender = None
 
     def __call__(self, *args, **kwargs):
         return self.handle()
 
+    def set_sender(self):
+        try:
+            self.sender = SENDERS[self.message_type](CONFIG)
+            if isinstance(self.sender, Teams):
+                self.sender.set_webhook_url(self.event.get('web_hook_url'))
+        except KeyError as e:
+            logger.exception(f'{repr(self.message_type)} was not in {repr(SENDERS.keys())}, failing.', exc_info=e)
+            raise
+
     def handle(self):
+        self.set_sender()
+        self.message = self.sender.set_message(self.event)
+        if self.message:
+            logger.info(f'Message set. {type(self.sender).__name__} returned: {self.message}')
         self.data = self.sender.send()
         self.response = {"response": self.data or f'Success but no response from sender: {type(self.sender).__name__}'}
         return self.response

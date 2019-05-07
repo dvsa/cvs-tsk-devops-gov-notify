@@ -1,6 +1,4 @@
-import json
-from json import JSONDecodeError
-from typing import Dict, Union
+from typing import Dict
 
 from requests import Request, Session, RequestException, TooManyRedirects, Response
 from requests.adapters import HTTPAdapter
@@ -9,12 +7,13 @@ from .sender import Sender
 
 
 class Teams(Sender):
-    def __init__(self, config):
+    def __init__(self, config, web_hook_url=None):
         super().__init__(config)
         self.payload: Dict = None
         self.headers = {"Content-Type": "application/json"}
         self.http_timeout = 2
-        self.web_hook_url = self.get_config_value(env_var='TEAMS_URL', section='Teams', key='webhook_url')
+        self.web_hook_url = web_hook_url or self.get_config_value(env_var='TEAMS_URL', section='Teams',
+                                                                  key='webhook_url')
 
     def set_message(self, event):
         super().set_message(event)
@@ -55,3 +54,6 @@ class Teams(Sender):
             resp = s.send(req, timeout=timeout)
             resp.raise_for_status()
             return resp
+
+    def set_webhook_url(self, url):
+        self.web_hook_url = url

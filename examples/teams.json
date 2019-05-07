@@ -1,5 +1,6 @@
 {
   "message_type": "teams",
+  "web_hook_url": null,
   "subject": "Hello World!",
   "body": "This message was sent from cvs-tsk-devops-notify"
 }

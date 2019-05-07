@@ -1,5 +1,6 @@
 {
   "message_type": "teams",
+  "web_hook_url": null,
   "body": {
     "@type": "MessageCard",
     "@context": "https://schema.org/extensions",
