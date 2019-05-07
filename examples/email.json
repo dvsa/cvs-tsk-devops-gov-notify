@@ -1,0 +1,11 @@
+{
+  "message_type": "email",
+  "to": "example@example.com",
+  "template_id": "1234-abcd-6789-efff",
+  "template_vars": {
+    "example_var": "var",
+    "name": "Guido"
+  },
+  "attachment": "eyJkYXRhIjogInRoaXMgaXMgYW4gZXhhbXBsZSBiYXNlNjQgZW5jb2RlZCBmaWxlIn0K",
+  "attachment_name": "example.json"
+}

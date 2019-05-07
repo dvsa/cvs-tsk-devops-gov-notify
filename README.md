@@ -7,45 +7,31 @@ You will require a GovNotify API Key to be able to use this lambda.
 Any GovNotify templates to be used with will require a variable `s3_link` to allow attachments to be linked. 
 
 
+## Config
+Should be the following, you can exclude certain sections if you do not wish to use it.
+```ini
+[S3]
+bucket_name = example-bucket
+[GovNotify]
+api_key = asjdahkdhawf-askljdalskjd-lkaskdjals
+reply_to_id = safajkskasjhsfa-asldjaslkdjas-kljaslkdja
+[Teams]
+webhook_url = https://outlook.office.com/webhook/...
+```
+
 ## Payloads
 
 The values `template_vars` `attachment` `attachment_name` are optional. 
 
 ### Example payloads
-#### Email
-```json
-{
-  "message_type": "email",
-  "to": "example@example.com",
-  "template_id": "1234-abcd-6789-efff",
-  "template_vars": {
-    "example_var": "var",
-    "name": "Guido"
-  },
-  "attachment": "eyJkYXRhIjogInRoaXMgaXMgYW4gZXhhbXBsZSBiYXNlNjQgZW5jb2RlZCBmaWxlIn0K",
-  "attachment_name": "example.json"
-}
-```
-#### SMS
-```json
-{
-  "message_type": "sms",
-  "to": "+447700900999",
-  "template_id": "1234-abcd-6789-e555",
-  "template_vars": {
-    "example_var": "var",
-    "name": "Guido"
-  },
-  "attachment": "eyJkYXRhIjogInRoaXMgaXMgYW4gZXhhbXBsZSBiYXNlNjQgZW5jb2RlZCBmaWxlIn0K",
-  "attachment_name": "example.json"
-}
-```
+[See the examples folder](./examples)
 
 ## Quick Start
 Run the following:
 ```bash
 pipenv install --dev
-./notify.py --event example_event.json
+export TEAMS_URL='https://outlook.office.com/webhook/...'
+pipenv run notify --event examples/teams.json
 ```
 
 ## Tests

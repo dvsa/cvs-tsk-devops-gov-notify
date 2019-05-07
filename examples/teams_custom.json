@@ -1,0 +1,22 @@
+{
+  "message_type": "teams",
+  "web_hook_url": null,
+  "body": {
+    "@type": "MessageCard",
+    "@context": "https://schema.org/extensions",
+    "summary": "Click this button to go to the MessageCard Schema",
+    "title": "Click this button to go to the MessageCard Schema",
+    "potentialAction": [
+      {
+        "@type": "OpenUri",
+        "name": "Click Here",
+        "targets": [
+          {
+            "os": "default",
+            "uri": "https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference"
+          }
+        ]
+      }
+    ]
+  }
+}

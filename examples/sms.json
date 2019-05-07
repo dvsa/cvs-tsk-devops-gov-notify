@@ -1,0 +1,11 @@
+{
+  "message_type": "sms",
+  "to": "+447700900999",
+  "template_id": "1234-abcd-6789-e555",
+  "template_vars": {
+    "example_var": "var",
+    "name": "Guido"
+  },
+  "attachment": "eyJkYXRhIjogInRoaXMgaXMgYW4gZXhhbXBsZSBiYXNlNjQgZW5jb2RlZCBmaWxlIn0K",
+  "attachment_name": "example.json"
+}
