@@ -40,12 +40,13 @@ class Teams(Sender):
 
     def send(self, req=None):
         super().send()
-        req = req or Request(method='post', url=self.web_hook_url, json=json.dumps(self.payload),
+        req = req or Request(method='post', url=self.web_hook_url, json=self.payload,
                              headers=self.headers).prepare()
         try:
             resp = self.send_request(req, self.http_timeout)
             return resp.text
         except RequestException as e:
+            self.logger.info(e.request.body)
             self.logger.info(e.response.text)
             self.logger.exception(f"Request to Teams with url: {self.web_hook_url} Failed.", exc_info=e)
             raise
