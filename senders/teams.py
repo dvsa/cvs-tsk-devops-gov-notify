@@ -1,3 +1,4 @@
+import json
 from typing import Dict
 
 from requests import Request, Session, RequestException, TooManyRedirects, Response
@@ -39,7 +40,8 @@ class Teams(Sender):
 
     def send(self, req=None):
         super().send()
-        req = req or Request(method='post', url=self.web_hook_url, json=self.payload, headers=self.headers).prepare()
+        req = req or Request(method='post', url=self.web_hook_url, json=json.dumps(self.payload),
+                             headers=self.headers).prepare()
         try:
             resp = self.send_request(req, self.http_timeout)
             return resp.text
