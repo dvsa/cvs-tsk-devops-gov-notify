@@ -42,7 +42,7 @@ class Teams(Sender):
         req = req or Request(method='post', url=self.web_hook_url, json=self.payload, headers=self.headers).prepare()
         try:
             resp = self.send_request(req, self.http_timeout)
-            return resp
+            return resp.text
         except [RequestException, TooManyRedirects] as e:
             self.logger.exception(f"Request to Teams with url: {self.web_hook_url} Failed.", exc_info=e)
             raise
