@@ -56,4 +56,5 @@ class Teams(Sender):
             return resp
 
     def set_webhook_url(self, url):
-        self.web_hook_url = url
+        if url is not None:
+            self.web_hook_url = url
