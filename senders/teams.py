@@ -46,7 +46,6 @@ class Teams(Sender):
             resp = self.send_request(req, self.http_timeout)
             return resp.text
         except RequestException as e:
-            self.logger.info(e.request.json)
             self.logger.info(e.response.text)
             self.logger.exception(f"Request to Teams with url: {self.web_hook_url} Failed.", exc_info=e)
             raise
