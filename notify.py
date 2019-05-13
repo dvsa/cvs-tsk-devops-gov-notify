@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from typing import Dict, Callable
 
-from aws_xray_sdk.core import patch_all
+from aws_xray_sdk.core import patch_all, xray_recorder
 
 from senders import GovNotify, Teams
 
@@ -17,6 +17,7 @@ SENDERS: Dict[str, Callable] = {'email': GovNotify, 'sms': GovNotify, 'teams': T
 
 
 class Handler:
+    @xray_recorder.capture('Init Handler')
     def __init__(self, event):
         self.event = event
         self.message_type = event.get('message_type')
@@ -28,6 +29,7 @@ class Handler:
     def __call__(self, *args, **kwargs):
         return self.handle()
 
+    @xray_recorder.capture('Set Sender')
     def set_sender(self):
         try:
             self.sender = SENDERS[self.message_type](CONFIG)

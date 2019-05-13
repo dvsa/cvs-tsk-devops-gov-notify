@@ -18,6 +18,7 @@ boto3.set_stream_logger('', logging.INFO)
 
 
 class Sender(ABC):
+    @xray_recorder.capture('Create Sender')
     def __init__(self, config: Path = None, dry_run: bool = False) -> None:
         self.dry_run = dry_run
         self.config_path = config
@@ -56,7 +57,7 @@ class Sender(ABC):
             except NoSectionError as e:
                 self.logger.exception(
                     f"Environment variable '{env_var}' not set and [{section}].{key} in {self.config_path} is not set",
-                    exec_info=e)
+                    exc_info=e)
                 raise
             except FileNotFoundError as e:
                 if self.config_path is None:
@@ -70,7 +71,7 @@ class Sender(ABC):
                     raise
         return config_value
 
-    @xray_recorder.capture('put')
+    @xray_recorder.capture('Upload Attachment')
     def upload_attachment(self) -> str:
         """
         Uploads an attachment to an S3 bucket for later use.
@@ -97,6 +98,7 @@ class Sender(ABC):
         return url
 
     @abstractmethod
+    @xray_recorder.capture('Set Message')
     def set_message(self, event: Dict) -> Any:
         """
         This should set 'to', 'subject', 'body' (as appropriate),
@@ -113,6 +115,7 @@ class Sender(ABC):
         self.attachment_name = event.get('attachment_name')
 
     @abstractmethod
+    @xray_recorder.capture('Send Message')
     def send(self) -> Any:
         """
         This should 'send' the message and return a status message
