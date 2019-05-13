@@ -18,7 +18,6 @@ boto3.set_stream_logger('', logging.INFO)
 
 
 class Sender(ABC):
-    @xray_recorder.capture('Create Sender')
     def __init__(self, config: Path = None, dry_run: bool = False) -> None:
         self.dry_run = dry_run
         self.config_path = config

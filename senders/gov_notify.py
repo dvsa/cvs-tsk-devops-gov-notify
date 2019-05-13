@@ -23,7 +23,7 @@ class GovNotify(Sender):
             api_key=self.get_api_key() or self.get_config_value(env_var='GOV_NOTIFY_KEY', section='GovNotify',
                                                                 key='api_key'))
 
-    @xray_recorder.capture('get_secret_value')
+    @xray_recorder.capture('Get GovNotify Key')
     def get_api_key(self) -> Optional[str]:
         try:
             role = self.get_config_value('SECRET_ROLE', 'AWS', 'secret_role')

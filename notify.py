@@ -17,7 +17,6 @@ SENDERS: Dict[str, Callable] = {'email': GovNotify, 'sms': GovNotify, 'teams': T
 
 
 class Handler:
-    @xray_recorder.capture('Init Handler')
     def __init__(self, event):
         self.event = event
         self.message_type = event.get('message_type')
@@ -39,6 +38,7 @@ class Handler:
             logger.exception(f'{repr(self.message_type)} was not in {repr(SENDERS.keys())}, failing.', exc_info=e)
             raise
 
+    @xray_recorder.capture('Handle Message')
     def handle(self):
         self.set_sender()
         self.message = self.sender.set_message(self.event)
