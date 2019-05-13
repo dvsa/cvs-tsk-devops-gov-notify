@@ -42,7 +42,7 @@ class Handler:
     @xray_recorder.capture('Handle Message')
     def handle(self):
         document: Subsegment = xray_recorder.current_subsegment()
-        document.put_metadata("Event", self.event)
+        document.put_metadata("Event", self.event, "Input")
         self.set_sender()
         self.message = self.sender.set_message(self.event)
         if self.message:
