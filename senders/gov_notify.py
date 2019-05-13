@@ -32,7 +32,7 @@ class GovNotify(Sender):
 
             sts: SClient = boto3.client('sts')
             cred = sts.assume_role(RoleArn=role,
-                                   RoleSessionName='GovNotifyKey')
+                                   RoleSessionName='GovNotifyKey').get('Credentials')
             sess = boto3.Session(aws_access_key_id=cred['AccessKeyId'],
                                  aws_secret_access_key=cred['SecretAccessKey'],
                                  aws_session_token=cred['SessionToken'],
@@ -40,7 +40,7 @@ class GovNotify(Sender):
             sm: Client = sess.client('secretsmanager')
             sv = sm.get_secret_value(SecretId=secret_name)
             return json.loads(sv.get('SecretString')).get('api_key')
-        except (ClientError, NoSectionError) as e:
+        except (KeyError, ClientError, NoSectionError) as e:
             self.logger.warning('Failed to retrieve secret key from SecretsManager', exc_info=e)
             return
 
