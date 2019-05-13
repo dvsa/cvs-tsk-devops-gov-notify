@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Dict, Callable
 
 from aws_xray_sdk.core import patch_all, xray_recorder
+from aws_xray_sdk.core.models.subsegment import Subsegment
 
 from senders import GovNotify, Teams
 
@@ -40,6 +41,8 @@ class Handler:
 
     @xray_recorder.capture('Handle Message')
     def handle(self):
+        document: Subsegment = xray_recorder.current_subsegment()
+        document.put_metadata("Event", self.event)
         self.set_sender()
         self.message = self.sender.set_message(self.event)
         if self.message:
