@@ -1,6 +1,6 @@
 import boto3
 import responses
-from behave import use_step_matcher, given, then, when
+from behave import use_step_matcher, given, then, when, step
 
 from boto3_type_annotations.s3 import ServiceResource
 from hamcrest import assert_that, equal_to, is_in, not_none, calling, raises

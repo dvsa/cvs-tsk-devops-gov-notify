@@ -10,10 +10,12 @@ from typing import Dict, Optional, Any, Union
 from urllib import parse
 
 import boto3
-from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.core import xray_recorder, patch
+from aws_xray_sdk.core.models.subsegment import Subsegment
 from boto3_type_annotations.s3 import ServiceResource, Object
 from botocore.exceptions import ClientError
 
+patch(['boto3'])
 boto3.set_stream_logger('', logging.INFO)
 
 
@@ -23,17 +25,18 @@ class Sender(ABC):
         self.config_path = config
         self.config = ConfigParser()
         self.logger = logging.getLogger(self.__class__.__name__)
-        self.message_type: str = None
-        self.to: str = None
-        self.subject: str = None
-        self.body: Union[str, Dict] = None
-        self.attachment: Union[str, bytes] = None
-        self.attachment_name: str = None
-        self.s3_url: str = None
+        self.message_type: str = ''
+        self.to: str = ''
+        self.subject: str = ''
+        self.body: Union[str, Dict] = ''
+        self.attachment: Union[str, bytes] = ''
+        self.attachment_name: str = ''
+        self.s3_url: str = ''
         if self.config_path.exists() and self.config_path.is_file():
             self.logger.info(f"Reading config file {self.config_path}")
             self.config.read(self.config_path)
 
+    @xray_recorder.capture('Get Config Value')
     def get_config_value(self, env_var: str, section: str, key: str) -> str:
         """
         Retrieves config value from environment variable 'env_var' and if it does not exist, tries to read it from
@@ -47,6 +50,9 @@ class Sender(ABC):
         the requested config key also does not exist.
         """
         config_value: Optional[str] = os.getenv(env_var)
+        document: Subsegment = xray_recorder.current_subsegment()
+        document.put_metadata("Environment Variable", env_var, "Config")
+        document.put_metadata("Config Value", f'[{section}].{key}', "Config")
         if not config_value:
             try:
                 if not self.config_path.is_file() or not self.config_path.exists():
@@ -97,7 +103,6 @@ class Sender(ABC):
         return url
 
     @abstractmethod
-    @xray_recorder.capture('Set Message')
     def set_message(self, event: Dict) -> Any:
         """
         This should set 'to', 'subject', 'body' (as appropriate),
@@ -114,7 +119,6 @@ class Sender(ABC):
         self.attachment_name = event.get('attachment_name')
 
     @abstractmethod
-    @xray_recorder.capture('Send Message')
     def send(self) -> Any:
         """
         This should 'send' the message and return a status message

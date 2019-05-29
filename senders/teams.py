@@ -1,21 +1,23 @@
-import json
 from typing import Dict
 
-from requests import Request, Session, RequestException, TooManyRedirects, Response
+from requests import Request, Session, RequestException, Response
 from requests.adapters import HTTPAdapter
 
-from .sender import Sender
+from .sender import Sender, xray_recorder, patch
+
+patch(['requests'])
 
 
 class Teams(Sender):
     def __init__(self, config, web_hook_url=None):
         super().__init__(config)
-        self.payload: Dict = None
+        self.payload: Dict = {}
         self.headers = {"Content-Type": "application/json"}
         self.http_timeout = 2
         self.web_hook_url = web_hook_url or self.get_config_value(env_var='TEAMS_URL', section='Teams',
                                                                   key='webhook_url')
 
+    @xray_recorder.capture('Set Teams Message')
     def set_message(self, event):
         super().set_message(event)
         try:
@@ -38,6 +40,7 @@ class Teams(Sender):
             else:
                 self.logger.info(f"Custom Message set: {self.payload}")
 
+    @xray_recorder.capture('Send Teams Message')
     def send(self, req=None):
         super().send()
         req = req or Request(method='post', url=self.web_hook_url, json=self.payload,

@@ -4,12 +4,11 @@ import os
 from pathlib import Path
 from typing import Dict, Callable
 
-from aws_xray_sdk.core import patch_all, xray_recorder
+from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core.models.subsegment import Subsegment
 
 from senders import GovNotify, Teams
 
-patch_all()
 logger = logging.getLogger(__name__)
 local_path = Path(__file__).parent
 CONFIG_FILE = os.getenv('CONFIG_FILE', 'config.ini')

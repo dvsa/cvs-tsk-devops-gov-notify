@@ -1,23 +1,22 @@
 import base64
 import json
 from configparser import NoSectionError
-
-import boto3
 from typing import Dict, Optional
 
-from aws_xray_sdk.core import xray_recorder
 from boto3_type_annotations.secretsmanager import Client
 from boto3_type_annotations.sts import Client as SClient
 from botocore.exceptions import ClientError
 from notifications_python_client.notifications import NotificationsAPIClient
 
-from .sender import Sender
+from .sender import Sender, boto3, xray_recorder, patch
+
+patch(['requests'])
 
 
 class GovNotify(Sender):
     def __init__(self, config) -> None:
         super().__init__(config)
-        self.template_id: str = None
+        self.template_id: str = ''
         self.template_vars: Optional[Dict] = None
         self.client = NotificationsAPIClient(
             api_key=self.get_api_key() or self.get_config_value(env_var='GOV_NOTIFY_KEY', section='GovNotify',
@@ -44,6 +43,7 @@ class GovNotify(Sender):
             self.logger.warning('Failed to retrieve secret key from SecretsManager', exc_info=e)
             return
 
+    @xray_recorder.capture('Set GovNotify Message')
     def set_message(self, event: Dict):
         super().set_message(event)
         self.template_id = event.get('template_id')
@@ -55,6 +55,7 @@ class GovNotify(Sender):
             else:
                 self.template_vars['s3_link'] = self.upload_attachment()
 
+    @xray_recorder.capture('Send GovNotify Message')
     def send(self):
         super().send()
         resp = None
