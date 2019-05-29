@@ -1,7 +1,7 @@
 from typing import Dict
 
-from requests import Request, Session, RequestException, Response
-from requests.adapters import HTTPAdapter
+import requests
+from requests import RequestException, HTTPError
 
 from .sender import Sender, xray_recorder, patch
 
@@ -43,24 +43,16 @@ class Teams(Sender):
     @xray_recorder.capture('Send Teams Message')
     def send(self, req=None):
         super().send()
-        req = req or Request(method='post', url=self.web_hook_url, json=self.payload,
-                             headers=self.headers).prepare()
         try:
-            resp = self.send_request(req, self.http_timeout)
+            resp = requests.post(url=self.web_hook_url, json=self.payload, headers=self.headers,
+                                 http_timeout=self.http_timeout)
+            resp.raise_for_status()
             return resp.text
-        except RequestException as e:
-            self.logger.info(e.request.body)
-            self.logger.info(e.response.text)
+        except (RequestException, HTTPError) as e:
+            self.logger.debug(e.request.body)
+            self.logger.debug(e.response.text)
             self.logger.exception(f"Request to Teams with url: {self.web_hook_url} Failed.", exc_info=e)
             raise
-
-    @staticmethod
-    def send_request(req: Request, timeout: int) -> Response:
-        with Session() as s:
-            s.mount("https://outlook.office.com/webhook/", HTTPAdapter(max_retries=10))
-            resp = s.send(req, timeout=timeout)
-            resp.raise_for_status()
-            return resp
 
     def set_webhook_url(self, url):
         if url is not None:
