@@ -10,7 +10,7 @@ pipenv install --deploy
 SITE_PACKAGES=$(pipenv --venv)/lib/python3.7/site-packages
 echo "Library Location: $SITE_PACKAGES"
 cd ${SITE_PACKAGES}
-7z a -tzip -mx=9 ${DIR}/package.zip * -xr!boto3 -x!boto3* -xr!botocore -x!botocore*
+7z a -tzip -mx=9 ${DIR}/package.zip * -x!boto3 -x!boto3* -x!botocore -x!botocore*
 7z a -tzip -mx=9 ${DIR}/package.zip boto3_type_annotations*
 cd ${DIR}
 7z a -tzip -mx=9 package.zip notify.py config.ini senders
