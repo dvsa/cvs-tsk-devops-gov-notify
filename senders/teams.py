@@ -13,7 +13,6 @@ class Teams(Sender):
         super().__init__(config)
         self.payload: Dict = {}
         self.headers = {"Content-Type": "application/json"}
-        self.http_timeout = 2
         self.web_hook_url = web_hook_url or self.get_config_value(env_var='TEAMS_URL', section='Teams',
                                                                   key='webhook_url')
 
@@ -44,8 +43,7 @@ class Teams(Sender):
     def send(self, req=None):
         super().send()
         try:
-            resp = requests.post(url=self.web_hook_url, json=self.payload, headers=self.headers,
-                                 http_timeout=self.http_timeout)
+            resp = requests.post(url=self.web_hook_url, json=self.payload, headers=self.headers)
             resp.raise_for_status()
             return resp.text
         except (RequestException, HTTPError) as e:
